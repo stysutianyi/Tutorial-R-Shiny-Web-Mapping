@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Creating web maps with R Shiny: Part 1
+# Creating web maps with R Shiny
 
 ## Introduction
 The goal for this workshop is to create a basic web mapping application, where you can display polygons and rasters on a basemap. This web map should be accessible to anyone with an internet connection via web browser, like Google Chrome or Mozilla Firefox. 
