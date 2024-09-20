@@ -21,8 +21,14 @@ This workshop assumes you have a basic understanding of the following tools:
 
 The source code and examples for this workshop can be found here: https://github.com/JayMatsushiba/Tutorial-R-Shiny-Web-Mapping 
 
+Here is the result we will create:
+
+
 ### Why web maps? 
 Before we get into how to build a web mapping application, we should ask ourselves what are the advantages of building these in the first place. 
+
+Here is an example of what is possible with this combination of tools:
+https://jaymatsushiba.shinyapps.io/Global_Sharks_Rays_Conservation_Tool/ 
 
 ### Other resources that I found helpful for developing this workshop
 Happy Git and GitHub for the useR by Jennifer Bryan 
@@ -132,7 +138,7 @@ https://github.com/JayMatsushiba/Tutorial-R-Shiny-Web-Mapping.git. You can downl
 
 Common file formats for spatial data include shapefiles (.shp with associated files), .geojson, .geotiff, etc. (there are so many...). Generally though, we can read in vector spatial data with `st_read("filepath_here")` and raster data with `rast("filepath_here")`. 
 
-### Let's try reading some spatial files into R:
+### Let's try importing some spatial files into R:
 ```{r}
 # These are iNaturalist observations of the American Black Bear in British Columbia
 # This is an example of a point data.
@@ -148,7 +154,121 @@ british_columbia <- st_read("data/british_columbia/british_columbia.shp")
 ```
 
 ### Let's try doing some basic plots 
+The spatial information is saved in the `geometry` column of these objects, so we can access them this way: 
+```{r}
+plot(black_bear_observations_bc$geometry)
 
+plot(burnaby$geometry)
+
+plot(british_columbia$geometry)
+```
+
+### Intersection 
+Using the `st_intersection()` function, we can select the points (y) that are within an area (x). 
+```{r}
+black_bear_observations_burnaby <- st_intersection(x = burnaby, 
+                                                   y = black_bear_observations_bc)
+```
+We can actually use ggplot to put multiple spatial layers onto one plot. Only the black bear observations within Burnaby are plotted, since we used the `st_intersection()` to clip the points to the Burnaby boundary.  
+```{r}
+ggplot() +
+  geom_sf(data = burnaby) +
+  geom_sf(data = black_bear_observations_burnaby)
+```
+### Clip
+Using the same `st_intersection()` between two polygon layers will act as a clip, returning the overlapping part of the two polygons.  
+```{r, error = TRUE}
+bc_without_burnaby <- st_intersection(burnaby, british_columbia)
+```
+Oh no! An error! 
+
+The `st_crs()` function returns the coordinate system of the spatial object. This error means that the two input spatial objects are not the same coordinate systems and therefore the `st_intersection()` doesn't work. 
+
+We can check the coordinate systems for each to verify:
+```{r}
+st_crs(burnaby) # Coordinate system is WGS 84
+st_crs(british_columbia) # Coordinate system is NAD83 / Statistics Canada Lambert
+```
+In order to remedy these issues, we can transform one of the layers to match the other. 
+```{r}
+burnaby_transformed <- st_transform(burnaby, st_crs(british_columbia))
+burnaby_bc_clip <- st_intersection(burnaby_transformed, british_columbia)
+```
+
+Now we can look at what this looks like to clip British Columbia to Burnaby. While it looks different due to the transformation, this ends up just being the Burnaby boundary area because Burnaby is entirely contained by British Columbia. 
+```{r}
+ggplot() +
+  geom_sf(data = burnaby_bc_clip)
+```
+### Buffer
+Let's try making some buffers around Burnaby. 
+```{r}
+# The second parameter is the distance of the buffer
+# The units depend on the coordinate reference system of the input layer. 
+burnaby_buffer <- st_buffer(burnaby_transformed, 2000) 
+
+ggplot() +
+  geom_sf(data = burnaby_buffer) +
+    geom_sf(data = burnaby, fill = "grey") 
+```
+### Counts
+We can count the number of points that fall into each area by using `st_intersects()`. This returns something different compared to `st_intersection()`, as it returns the list of indexes of the intersecting rows in the second object.  
+```{r}
+index <- st_intersects(burnaby, black_bear_observations_bc)
+```
+So for a simple count of a single polygon, we could just take the length of this list. 
+```{r}
+lengths(index)
+```
+Let's do something more interesting with this, and get the counts of observations across British Columbia over a regular grid cell. We need to start with creating the grid cells using `st_make_grid()`. 
+```{r}
+grid <- st_make_grid(
+  british_columbia,
+  cellsize = 50000
+)
+
+# We can see that we created a regular sized grid over the area of BC. 
+ggplot() +
+  geom_sf(data = grid) +
+  geom_sf(data = british_columbia)
+```
+We can do the same `st_intersects()` operation between this grid and the black bear observations. This will return a list of lists, with one list of row indexes of the black bear observations that intersect with each grid cell.
+```{r}
+black_bear_observations_bc_transform <- black_bear_observations_bc %>%
+  st_transform(st_crs(grid)) # remembering that the CRS need to be the same 
+
+# This returns a list of lists
+index_grid <- st_intersects(grid, black_bear_observations_bc_transform) 
+
+# This turns into a list of counts of observations in each grid cell 
+grid_count <- lengths(index_grid)
+```
+
+Since now we have a list of counts, which is ordered based on the grid cell layer, we can simply column bind them together. We can take that matrix and convert to a dataframe first, then into the spatial object (sf). We renamed the `grid` column to `geometry`, since that is the default name of the column with the spatial information 
+```{r}
+# combine grid cells and counts
+bear_observation_counts_grid <- cbind(grid, grid_count) %>%
+  as.data.frame() %>% # convert to dataframe, to allow conversion to sf
+  st_as_sf() %>% # convert to sf
+  st_set_crs(st_crs(grid)) %>% # make sure that the original CRS is assigned
+  rename(geometry = grid) %>% # rename to default geometry column name
+  mutate(grid_count = as.numeric(grid_count))
+
+ggplot() +
+  scale_fill_viridis_c() +
+  geom_sf(data = bear_observation_counts_grid, 
+          aes(fill = grid_count))
+```
+
+And we can clean this up a bit more by intersecting again with British Columbia. This may take quite a long time, so we can skip this. This is also a reason to use `st_intersects()` instead of `st_intersection()` when possible. 
+```{r}
+bear_obs_counts_grids_clip <- st_intersection(bear_observation_counts_grid, british_columbia)
+
+ggplot() +
+  scale_fill_viridis_c() +
+  geom_sf(data = bear_obs_counts_grids_clip, 
+          aes(fill = grid_count))
+```
 
 ## Part 3: Basic Shiny Apps
 
