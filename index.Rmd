@@ -2,7 +2,11 @@
 title: "R Shiny Web Map Tutorial"
 author: "Jay Matsushiba"
 date: "2024-09-19"
-output: html_document
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    theme: united
 ---
 
 ```{r setup, include=FALSE}
@@ -10,6 +14,8 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # Creating web maps with R Shiny
+
+
 
 ## Introduction
 The goal for this workshop is to create a basic web mapping application, where you can display polygons and rasters on a basemap. This web map should be accessible to anyone with an internet connection via web browser, like Google Chrome or Mozilla Firefox. 
@@ -21,11 +27,10 @@ This workshop assumes you have a basic understanding of the following tools:
 
 The source code and examples for this workshop can be found here: https://github.com/JayMatsushiba/Tutorial-R-Shiny-Web-Mapping 
 
-Here is the result we will create:
-
-
 ### Why web maps? 
-Before we get into how to build a web mapping application, we should ask ourselves what are the advantages of building these in the first place. 
+Before we get into how to build a web mapping application, we should ask ourselves what are the advantages of building these in the first place. With traditional GIS, with software like ArcGIS Pro and QGIS, we can do all sorts of powerful spatial analyses. However, the challenge is sharing our information. While we can send files to other people, the appearance and the interpretation of our data will be different depending on how the recipient accesses the information. This also poses a barrier if we want to engage people that aren't necessarily GIS experts. With web maps, we can craft visualizations and interactions with our spatial data that are in line with the narrative that we want to communicate. We also make our work much more accessible to a broader audience. 
+
+There are web mapping platforms that exist, such as ArcGIS Online, that are capable and can be used to achieve similar results to what we will learn in this workshop. However, these platforms are paid and closed-source, forcing us to be locked in to one company. With creating Web Maps with R Shiny, we stick with open-source software to analyze and visualize the data. We have the flexibility to choose where to host our application depending on our needs, including free options. 
 
 Here is an example of what is possible with this combination of tools:
 https://jaymatsushiba.shinyapps.io/Global_Sharks_Rays_Conservation_Tool/ 
@@ -175,6 +180,7 @@ ggplot() +
   geom_sf(data = burnaby) +
   geom_sf(data = black_bear_observations_burnaby)
 ```
+
 ### Clip
 Using the same `st_intersection()` between two polygon layers will act as a clip, returning the overlapping part of the two polygons.  
 ```{r, error = TRUE}
@@ -200,6 +206,7 @@ Now we can look at what this looks like to clip British Columbia to Burnaby. Whi
 ggplot() +
   geom_sf(data = burnaby_bc_clip)
 ```
+
 ### Buffer
 Let's try making some buffers around Burnaby. 
 ```{r}
@@ -211,6 +218,7 @@ ggplot() +
   geom_sf(data = burnaby_buffer) +
     geom_sf(data = burnaby, fill = "grey") 
 ```
+
 ### Counts
 We can count the number of points that fall into each area by using `st_intersects()`. This returns something different compared to `st_intersection()`, as it returns the list of indexes of the intersecting rows in the second object.  
 ```{r}
@@ -269,6 +277,8 @@ ggplot() +
   geom_sf(data = bear_obs_counts_grids_clip, 
           aes(fill = grid_count))
 ```
+
+**Now that we have this nice map, let's make it interactive and put it on a web application!** 
 
 ## Part 3: Basic Shiny Apps
 
