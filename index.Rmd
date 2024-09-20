@@ -19,6 +19,8 @@ This workshop assumes you have a basic understanding of the following tools:
 - R programming and using RStudio 
 - Spatial analyses in R using `sf` and `terra` packages 
 
+The source code and examples for this workshop can be found here: https://github.com/JayMatsushiba/Tutorial-R-Shiny-Web-Mapping 
+
 ### Why web maps? 
 Before we get into how to build a web mapping application, we should ask ourselves what are the advantages of building these in the first place. 
 
@@ -35,7 +37,7 @@ https://mastering-shiny.org/index.html
 Using Leaflet with Shiny 
 https://rstudio.github.io/leaflet/articles/shiny.html
 
-## STEP 1: GitHub and R Project Setup 
+## Part 1: GitHub and R Project Setup 
 While setting up a project to work with Git and GitHub may be an extra step, it is really useful and important for keeping our work organized and accessible. 
 
 Using Git and GitHub in itself can be an entire workshop in itself, so we will keep it as brief and straightforward as possible here. The reason why we use Git and GitHub is for a number of reasons. Firstly, it provides a backup to your work in case something happens to your computer. Secondly, it makes it easier to share code and keep it updated, compared to emailing random files around. Thirdly, it provides many tools for collaboration and is the main reason why I use Git and GitHub as part of my workflow. 
@@ -110,11 +112,45 @@ GitHub has a maximum individual file size of 100 MB, and will not allow uploads 
 Addressing these problems are beyond this workshop, but see here for additional context: 
 https://stackoverflow.com/questions/2100907/how-can-i-remove-delete-a-large-file-from-the-commit-history-in-the-git-reposito 
 
-## STEP 2: Basic Spatial Analysis with `sf` and `terra`
+## Part 2: Basic Spatial Analysis with `sf` and `terra`
+Let's get started on working with spatial data in R! We will continue to work out of `R/spatial.R`, which should look like this at this point after being committed and pushed to GitHub in the previous step:
+```{r}
+# This will contain the spatial data analysis code for this workshop.
+print("Hello World")
+```
 
+Let's remove the `print("Hello World")` and load the relevant packages. Install the packages if you haven't done that yet. 
+```{r}
+# This will contain the spatial data analysis code for this workshop.
+library(sf)
+library(terra)
+library(tidyverse)
+```
 
-## STEP 3: Basic Shiny Apps
+We need some spatial data! I have a folder of sample data hosted on GitHub that you can download here: 
+https://github.com/JayMatsushiba/Tutorial-R-Shiny-Web-Mapping.git. You can download the files individually in the `data` folder, or you can `git clone` the whole repository (which includes a sample Spatial Shiny App). The process for cloning the repository is actually the same as linking to a new project, so follow the steps in the **Create new R Project that is linked to GitHub repository** section again, just with the link to my repo instead. Copy the `data` folder from my repository into your own project. 
 
-## STEP 4: Spatial Data and Shiny Apps 
+Common file formats for spatial data include shapefiles (.shp with associated files), .geojson, .geotiff, etc. (there are so many...). Generally though, we can read in vector spatial data with `st_read("filepath_here")` and raster data with `rast("filepath_here")`. 
 
-## STEP 5: Publishing Your Shiny Apps 
+Let's try reading some spatial files into R:
+```{r, eval=FALSE}
+# These are iNaturalist observations of the American Black Bear in British Columbia
+# This is an example of a point data.
+black_bear_observations_bc <- st_read("data/black_bear_observations_bc/black_bear_observations_bc.shp")
+
+# This is a polygon representing the boundaries of Burnaby
+# https://data.burnaby.ca/datasets/d903b87782734451ae286cb0b59938ac
+burnaby <- st_read("data/Burnaby_Boundary/Burnaby_Boundary.shp")
+
+# This is a polygon representing British Columbia
+# https://open.canada.ca/data/en/dataset/a883eb14-0c0e-45c4-b8c4-b54c4a819edb 
+british_columbia <- st_read("data/british_columbia/british_columbia.shp")
+```
+
+Let's try doing some basic plots 
+
+## Part 3: Basic Shiny Apps
+
+## Part 4: Spatial Data and Shiny Apps 
+
+## Part 5: Publishing Your Shiny Apps 
