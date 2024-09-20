@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><metadata>
+    <idinfo>
+        <citation>
+            <citeinfo>
+                <title>Burnaby Boundary</title>
+                <onlink>https://gis.burnaby.ca/arcgis/rest/services/OpenData/OpenData3/MapServer/12</onlink>
+            </citeinfo>
+        </citation>
+        <descript>
+            <abstract>Outer boundary of the City of Burnaby.</abstract>
+            <purpose>Area outline of the City of Burnaby.</purpose>
+        </descript>
+        <spdom>
+            <bounding>
+                <westbc>-123.01</westbc>
+                <eastbc>-122.896</eastbc>
+                <northbc>49.323</northbc>
+                <southbc>49.209</southbc>
+            </bounding>
+        </spdom>
+        <keywords>
+            <theme>
+                <themekt>ISO 19115 Topic Categories</themekt>
+                <themekey>boundaries</themekey>
+                <themekey>planningCadastre</themekey>
+            </theme>
+            <theme>
+                <themekt>None</themekt>
+                <themekey>Legal &amp; Lands</themekey>
+                <themekey>City of Burnaby</themekey>
+                <themekey>Boundary</themekey>
+            </theme>
+        </keywords>
+        <accconst>None</accconst>
+        <useconst>https://data.burnaby.ca/pages/open-government-licence</useconst>
+        <datacred>City of Burnaby</datacred>
+    </idinfo>
+    <metainfo>
+        <metd>20161108</metd>
+        <metc>
+            <cntinfo>
+                <!--no contact person or organization name available-->
+            </cntinfo>
+        </metc>
+        <metstdn>FGDC Content Standard for Digital Geospatial Metadata</metstdn>
+        <metstdv>FGDC-STD-001-1998</metstdv>
+        <mettc>local time</mettc>
+    </metainfo>
+</metadata>
